@@ -1,0 +1,50 @@
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Java
+target/
+*.class
+*.jar
+*.war
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+build/
+coverage/
+
+# Visual Studio Code
+.vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Jenkins
+jenkins_home/
+
+# SonarQube
+sonarqube_data/
+sonarqube_logs/
+sonarqube_extensions/
