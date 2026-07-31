@@ -53,15 +53,18 @@
     </dependencies>
 
     <build>
-        <plugins>
 
-            <!-- Permite generar un JAR ejecutable de Spring Boot -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+    <finalName>app</finalName>
 
-        </plugins>
-    </build>
+    <plugins>
+
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+
+    </plugins>
+
+</build>
 
 </project>

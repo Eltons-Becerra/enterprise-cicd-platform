@@ -27,12 +27,14 @@ public class ServiceController {
         );
     }
 
-    @GetMapping("/api/java/health")
+    // 🔵 Ruta cambiada para evitar conflicto con JavaServiceController
+    @GetMapping("/api/service/health")
     public HealthResponse health() {
         return platformService.health();
     }
 
-    @GetMapping("/api/java/info")
+    // 🔵 Ruta cambiada para evitar conflicto con JavaServiceController
+    @GetMapping("/api/service/info")
     public ServiceInfoResponse info() {
         return platformService.info();
     }

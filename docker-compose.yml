@@ -1,33 +1,74 @@
+version: "3.9"
+
 services:
-  python-api:
-    container_name: enterprise-python-api
+
+  java-api:
+
+    container_name: enterprise-java-api
+
     build:
-      context: ./backend-python
+      context: ./backend-java
       dockerfile: Dockerfile
-    image: enterprise-python-api:1.0.0
+
+    image: enterprise-java-api:1.0.0
+
     environment:
-      APP_NAME: Enterprise CI/CD Python API
+      APP_NAME: Enterprise CI/CD Java API
       APP_VERSION: 1.0.0
-      ENVIRONMENT: ${ENVIRONMENT:-development}
+      ENVIRONMENT: ${ENVIRONMENT}
+      SERVER_PORT: 8080
+
     ports:
-      - "${PYTHON_API_PORT:-8000}:8000"
+      - "${JAVA_API_PORT}:8080"
+
     restart: unless-stopped
+
     healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/python/health')"
-        ]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health"]
       interval: 30s
-      timeout: 5s
+      timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 20s
+
     networks:
       - enterprise-network
 
+
+
+  python-api:
+
+    container_name: enterprise-python-api
+
+    build:
+      context: ./backend-python
+      dockerfile: Dockerfile
+
+    image: enterprise-python-api:1.0.0
+
+    environment:
+      APP_NAME: Enterprise CI/CD Python API
+      APP_VERSION: 1.0.0
+      ENVIRONMENT: ${ENVIRONMENT}
+
+    ports:
+      - "${PYTHON_API_PORT}:8000"
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/python/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+    networks:
+      - enterprise-network
+
+
+
 networks:
+
   enterprise-network:
     name: enterprise-network
     driver: bridge
