@@ -1,5 +1,6 @@
 package com.enterprise.platform.controller;
 
+import com.enterprise.platform.dto.PlatformStatusResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,5 +37,9 @@ public class JavaServiceController {
         response.put("environment", environment);
         response.put("technology", "Java + Spring Boot");
         return response;
-    }
+        }
+        @GetMapping("/api/java/platform-status")
+        public PlatformStatusResponse platformStatus() {
+        return platformService.platformStatus();
+        }
 }
