@@ -1,11 +1,6 @@
-version: "3.9"
-
 services:
 
   java-api:
-    depends_on:
-      python-api:
-        condition: service_healthy
     container_name: enterprise-java-api
 
     build:
@@ -15,19 +10,30 @@ services:
     image: enterprise-java-api:1.0.0
 
     environment:
-      APP_NAME: Enterprise CI/CD Java API
-      APP_VERSION: 1.0.0
-      ENVIRONMENT: ${ENVIRONMENT}
-      PYTHON_API_URL: ${PYTHON_API_INTERNAL_URL}
-      SERVER_PORT: 8080
+      APP_NAME: "Enterprise CI/CD Java API"
+      APP_VERSION: "1.0.0"
+      ENVIRONMENT: "${ENVIRONMENT}"
+      PYTHON_API_URL: "${PYTHON_API_INTERNAL_URL}"
+      SERVER_PORT: "8080"
 
     ports:
       - "${JAVA_API_PORT}:8080"
 
     restart: unless-stopped
 
+    depends_on:
+      python-api:
+        condition: service_healthy
+
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "-q",
+          "--spider",
+          "http://localhost:8080/actuator/health"
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,9 +43,7 @@ services:
       - enterprise-network
 
 
-
   python-api:
-
     container_name: enterprise-python-api
 
     build:
@@ -49,9 +53,9 @@ services:
     image: enterprise-python-api:1.0.0
 
     environment:
-      APP_NAME: Enterprise CI/CD Python API
-      APP_VERSION: 1.0.0
-      ENVIRONMENT: ${ENVIRONMENT}
+      APP_NAME: "Enterprise CI/CD Python API"
+      APP_VERSION: "1.0.0"
+      ENVIRONMENT: "${ENVIRONMENT}"
 
     ports:
       - "${PYTHON_API_PORT}:8000"
@@ -59,19 +63,23 @@ services:
     restart: unless-stopped
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/python/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/python/health')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
     networks:
       - enterprise-network
 
 
-
 networks:
-
   enterprise-network:
     name: enterprise-network
     driver: bridge

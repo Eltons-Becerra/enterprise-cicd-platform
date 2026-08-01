@@ -1,6 +1,7 @@
 package com.enterprise.platform.controller;
 
 import com.enterprise.platform.dto.HealthResponse;
+import com.enterprise.platform.dto.PlatformStatusResponse;
 import com.enterprise.platform.dto.ServiceInfoResponse;
 import com.enterprise.platform.exception.ResourceNotFoundException;
 import com.enterprise.platform.service.PlatformService;
@@ -27,16 +28,19 @@ public class ServiceController {
         );
     }
 
-    // 🔵 Ruta cambiada para evitar conflicto con JavaServiceController
     @GetMapping("/api/service/health")
     public HealthResponse health() {
         return platformService.health();
     }
 
-    // 🔵 Ruta cambiada para evitar conflicto con JavaServiceController
     @GetMapping("/api/service/info")
     public ServiceInfoResponse info() {
         return platformService.info();
+    }
+
+    @GetMapping("/api/java/platform-status")
+    public PlatformStatusResponse platformStatus() {
+        return platformService.platformStatus();
     }
 
     @GetMapping("/api/java/resources/{id}")
