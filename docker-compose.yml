@@ -1,4 +1,97 @@
 services:
+  jenkins-controller:
+    container_name: enterprise-jenkins-controller
+
+    build:
+      context: ./jenkins/controller
+      dockerfile: Dockerfile
+
+    image: enterprise-jenkins-controller:1.0.0
+
+    environment:
+      CASC_JENKINS_CONFIG: /var/jenkins_casc/jenkins.yaml
+      JENKINS_AGENT_PRIVATE_KEY_PATH: /run/secrets/jenkins_agent_private_key
+      GITHUB_CHECKOUT_PRIVATE_KEY_PATH: /run/secrets/github_checkout_private_key
+      JENKINS_URL: "http://localhost:8081/"
+
+    ports:
+      - "${JENKINS_PORT}:8080"
+
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      - "D:/2026/enterprise-cicd-secrets/jenkins_agent_ed25519:/run/secrets/jenkins_agent_private_key:ro"
+      - "D:/2026/enterprise-cicd-secrets/github_checkout_ed25519:/run/secrets/github_checkout_private_key:ro"
+
+    restart: unless-stopped
+
+    networks:
+      - enterprise-network
+
+
+  jenkins-java-agent:
+    container_name: enterprise-jenkins-java-agent
+
+    build:
+      context: ./jenkins/agents/java
+      dockerfile: Dockerfile
+
+    image: enterprise-jenkins-java-agent:1.0.0
+
+    environment:
+      JENKINS_AGENT_SSH_PUBKEY: "${JENKINS_AGENT_SSH_PUBKEY}"
+
+    expose:
+      - "22"
+
+    restart: unless-stopped
+
+    networks:
+      - enterprise-network
+
+
+  jenkins-node-agent:
+    container_name: enterprise-jenkins-node-agent
+
+    build:
+      context: ./jenkins/agents/node
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: "22.22.2"
+
+    image: enterprise-jenkins-node-agent:1.0.0
+
+    environment:
+      JENKINS_AGENT_SSH_PUBKEY: "${JENKINS_AGENT_SSH_PUBKEY}"
+
+    expose:
+      - "22"
+
+    restart: unless-stopped
+
+    networks:
+      - enterprise-network
+
+
+  jenkins-python-agent:
+    container_name: enterprise-jenkins-python-agent
+
+    build:
+      context: ./jenkins/agents/python
+      dockerfile: Dockerfile
+
+    image: enterprise-jenkins-python-agent:1.0.0
+
+    environment:
+      JENKINS_AGENT_SSH_PUBKEY: "${JENKINS_AGENT_SSH_PUBKEY}"
+
+    expose:
+      - "22"
+
+    restart: unless-stopped
+
+    networks:
+      - enterprise-network
+
 
   gateway:
     container_name: enterprise-gateway
@@ -133,3 +226,7 @@ networks:
   enterprise-network:
     name: enterprise-network
     driver: bridge
+
+volumes:
+  jenkins-home:
+    name: enterprise-jenkins-home

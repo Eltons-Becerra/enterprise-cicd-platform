@@ -1,0 +1,6 @@
+# Jenkins SSH keys
+jenkins/ssh/*
+!jenkins/ssh/README.md
+
+# Jenkins persistent data
+jenkins_home/
