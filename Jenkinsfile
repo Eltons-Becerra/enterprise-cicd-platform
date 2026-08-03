@@ -19,9 +19,7 @@ pipeline {
 
             parallel {
                 stage('Java Build') {
-                    agent {
-                        label 'java17'
-                    }
+                    agent { label 'java17' }
 
                     steps {
                         checkoutCode()
@@ -58,9 +56,7 @@ pipeline {
                 }
 
                 stage('Python Tests') {
-                    agent {
-                        label 'python'
-                    }
+                    agent { label 'python' }
 
                     steps {
                         checkoutCode()
@@ -76,7 +72,6 @@ pipeline {
                                 rm -rf .venv reports
 
                                 python3 -m venv .venv
-
                                 . .venv/bin/activate
 
                                 python -m pip install --upgrade pip
@@ -102,9 +97,7 @@ pipeline {
                 }
 
                 stage('Frontend Build') {
-                    agent {
-                        label 'node22'
-                    }
+                    agent { label 'node22' }
 
                     steps {
                         checkoutCode()
@@ -136,29 +129,27 @@ pipeline {
             }
         }
 
-        sh '''
-    echo "===== Usuario ====="
-    whoami
-
-    echo "===== Grupos ====="
-    id
-
-    echo "===== Socket ====="
-    ls -ln /var/run/docker.sock
-
-    echo "===== Docker ====="
-    which docker
-
-    docker version || true
-'''
-
         stage('Build Docker Images') {
-            agent {
-                label 'docker-builder'
-            }
+            agent { label 'docker-builder' }
 
             steps {
                 checkoutCode()
+
+                sh '''
+                    echo "===== Usuario ====="
+                    whoami
+
+                    echo "===== Grupos ====="
+                    id
+
+                    echo "===== Socket ====="
+                    ls -ln /var/run/docker.sock
+
+                    echo "===== Docker ====="
+                    which docker
+
+                    docker version || true
+                '''
 
                 sh '''
                     echo "========================================"
@@ -167,21 +158,18 @@ pipeline {
                     echo "========================================"
 
                     echo "Construyendo imagen del backend Java..."
-
                     docker build \
                       --tag enterprise-java-api:${BUILD_NUMBER} \
                       --tag enterprise-java-api:latest \
                       ./backend-java
 
                     echo "Construyendo imagen del backend Python..."
-
                     docker build \
                       --tag enterprise-python-api:${BUILD_NUMBER} \
                       --tag enterprise-python-api:latest \
                       ./backend-python
 
                     echo "Construyendo imagen del frontend React..."
-
                     docker build \
                       --tag enterprise-frontend:${BUILD_NUMBER} \
                       --tag enterprise-frontend:latest \
@@ -198,7 +186,6 @@ pipeline {
                       > docker-images.json
 
                     echo "Imágenes creadas correctamente:"
-
                     docker image ls \
                       --format "table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}" \
                       | grep enterprise || true
@@ -230,9 +217,7 @@ void checkoutCode() {
     checkout([
         $class: 'GitSCM',
 
-        branches: [[
-            name: '*/main'
-        ]],
+        branches: [[ name: '*/main' ]],
 
         userRemoteConfigs: [[
             url: 'git@github.com:Eltons-Becerra/enterprise-cicd-platform.git',
