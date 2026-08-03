@@ -136,6 +136,22 @@ pipeline {
             }
         }
 
+        sh '''
+    echo "===== Usuario ====="
+    whoami
+
+    echo "===== Grupos ====="
+    id
+
+    echo "===== Socket ====="
+    ls -ln /var/run/docker.sock
+
+    echo "===== Docker ====="
+    which docker
+
+    docker version || true
+'''
+
         stage('Build Docker Images') {
             agent {
                 label 'docker-builder'
