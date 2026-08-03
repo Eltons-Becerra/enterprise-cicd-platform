@@ -92,6 +92,7 @@ services:
     networks:
       - enterprise-network
 
+     
   jenkins-docker-agent:
     container_name: enterprise-jenkins-docker-agent
 
@@ -108,9 +109,6 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
-
-    group_add:
-      - "0"
 
     expose:
       - "22"

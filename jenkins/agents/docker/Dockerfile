@@ -12,7 +12,12 @@ RUN apt-get update \
        docker-compose \
     && rm -rf /var/lib/apt/lists/*
 
+# El socket de Docker Desktop está montado como root:root.
+# Se agrega Jenkins al grupo suplementario con GID 0.
+RUN usermod -aG root jenkins
+
 RUN docker --version \
     && docker compose version
 
-USER root       
+# setup-sshd necesita iniciar como root.
+USER root
