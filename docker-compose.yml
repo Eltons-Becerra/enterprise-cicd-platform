@@ -92,6 +92,30 @@ services:
     networks:
       - enterprise-network
 
+  jenkins-docker-agent:
+    container_name: enterprise-jenkins-docker-agent
+
+    build:
+      context: ./jenkins/agents/docker
+      dockerfile: Dockerfile
+
+    image: enterprise-jenkins-docker-agent:1.0.0
+
+    environment:
+      JENKINS_AGENT_SSH_PUBKEY: "${JENKINS_AGENT_SSH_PUBKEY}"
+
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+
+    expose:
+      - "22"
+
+    restart: unless-stopped
+
+    networks:
+      - enterprise-network
 
   gateway:
     container_name: enterprise-gateway

@@ -4,6 +4,7 @@ pipeline {
     options {
         timestamps()
         disableConcurrentBuilds()
+
         buildDiscarder(
             logRotator(
                 numToKeepStr: '10',
@@ -72,18 +73,16 @@ pipeline {
 
                                 python3 --version
 
-                                rm -rf .venv
+                                rm -rf .venv reports
+
                                 python3 -m venv .venv
 
                                 . .venv/bin/activate
 
                                 python -m pip install --upgrade pip
                                 pip install -r requirements-dev.txt
-                                mkdir -p reports
 
-                                pytest \
-                                --junitxml=reports/pytest-results.xml \
-                                -v
+                                mkdir -p reports
 
                                 pytest \
                                   --junitxml=reports/pytest-results.xml \
@@ -136,17 +135,77 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Images') {
+            agent {
+                label 'docker-builder'
+            }
+
+            steps {
+                checkoutCode()
+
+                sh '''
+                    echo "========================================"
+                    echo "Construcción de imágenes Docker"
+                    echo "Build de Jenkins: ${BUILD_NUMBER}"
+                    echo "========================================"
+
+                    echo "Construyendo imagen del backend Java..."
+
+                    docker build \
+                      --tag enterprise-java-api:${BUILD_NUMBER} \
+                      --tag enterprise-java-api:latest \
+                      ./backend-java
+
+                    echo "Construyendo imagen del backend Python..."
+
+                    docker build \
+                      --tag enterprise-python-api:${BUILD_NUMBER} \
+                      --tag enterprise-python-api:latest \
+                      ./backend-python
+
+                    echo "Construyendo imagen del frontend React..."
+
+                    docker build \
+                      --tag enterprise-frontend:${BUILD_NUMBER} \
+                      --tag enterprise-frontend:latest \
+                      ./frontend-react
+
+                    echo "========================================"
+                    echo "Validando imágenes construidas"
+                    echo "========================================"
+
+                    docker image inspect \
+                      enterprise-java-api:${BUILD_NUMBER} \
+                      enterprise-python-api:${BUILD_NUMBER} \
+                      enterprise-frontend:${BUILD_NUMBER} \
+                      > docker-images.json
+
+                    echo "Imágenes creadas correctamente:"
+
+                    docker image ls \
+                      --format "table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}" \
+                      | grep enterprise || true
+                '''
+
+                archiveArtifacts(
+                    artifacts: 'docker-images.json',
+                    fingerprint: true
+                )
+            }
+        }
     }
 
     post {
         success {
-            echo 'La integración continua finalizó correctamente.'
-            echo 'Los artefactos Java y React quedaron almacenados en Jenkins.'
+            echo "La integración continua finalizó correctamente."
+            echo "Los artefactos Java y React quedaron almacenados en Jenkins."
+            echo "Las imágenes Docker del build ${BUILD_NUMBER} fueron creadas correctamente."
         }
 
         failure {
-            echo 'La integración continua falló.'
-            echo 'Revisa la etapa y el reporte de pruebas correspondiente.'
+            echo "La integración continua falló."
+            echo "Revisa la etapa y el reporte de pruebas correspondiente."
         }
     }
 }
