@@ -109,6 +109,9 @@ services:
         source: /var/run/docker.sock
         target: /var/run/docker.sock
 
+    group_add:
+      - "0"
+
     expose:
       - "22"
 
