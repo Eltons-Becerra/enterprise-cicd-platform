@@ -79,6 +79,11 @@ pipeline {
 
                                 python -m pip install --upgrade pip
                                 pip install -r requirements-dev.txt
+                                mkdir -p reports
+
+                                pytest \
+                                --junitxml=reports/pytest-results.xml \
+                                -v
 
                                 pytest \
                                   --junitxml=reports/pytest-results.xml \
