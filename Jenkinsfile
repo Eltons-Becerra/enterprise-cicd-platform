@@ -243,11 +243,12 @@ pipeline {
                     echo "========================================"
 
                     docker run -d \
-                      --name "${PYTHON_CONTAINER}" \
-                      --network "${NETWORK_NAME}" \
-                      -p 18000:8000 \
-                      -e ENVIRONMENT=test \
-                      enterprise-python-api:${BUILD_NUMBER}
+                        --name "${PYTHON_CONTAINER}" \
+                        --network "${NETWORK_NAME}" \
+                        --network-alias python-api \
+                        -p 18000:8000 \
+                        -e ENVIRONMENT=test \
+                        enterprise-python-api:${BUILD_NUMBER}
 
                     echo "Esperando la API Python..."
 
@@ -275,12 +276,13 @@ pipeline {
                     echo "========================================"
 
                     docker run -d \
-                      --name "${JAVA_CONTAINER}" \
-                      --network "${NETWORK_NAME}" \
-                      -p 18080:8080 \
-                      -e ENVIRONMENT=test \
-                      -e PYTHON_API_URL=http://${PYTHON_CONTAINER}:8000 \
-                      enterprise-java-api:${BUILD_NUMBER}
+                        --name "${JAVA_CONTAINER}" \
+                        --network "${NETWORK_NAME}" \
+                        --network-alias java-api \
+                        -p 18080:8080 \
+                        -e ENVIRONMENT=test \
+                        -e PYTHON_API_URL=http://python-api:8000 \
+                        enterprise-java-api:${BUILD_NUMBER}
 
                     echo "Esperando la API Java..."
 
